@@ -33,13 +33,21 @@ prompt_question() {
     echo -ne "\e[34m[?] $1\e[0m "
 }
 
+# Check Root Function
+check_if_running_as_root() {
+    if [[ "$EUID" -ne '0' ]]; then
+      echo 
+      print_red 'Error: You must run this script as root!'
+      echo 
+      sleep 0.5
+      exit 1
+    fi
+}
+
 ####################################
 # Check for Root Privileges
 ####################################
-if [[ "$EUID" -ne 0 ]]; then
-    print_red "This script must be run as root. Please run with sudo or as root."
-    exit 1
-fi
+check_if_running_as_root
 
 ####################################
 # Intro Message
@@ -124,6 +132,22 @@ set_timezone() {
 set_timezone
 
 ####################################
+# Install XanMod Kernel (Optional)
+####################################
+install_xanmod_kernel() {
+    print_yellow "Installing XanMod Kernel..."
+    if [[ -f /etc/debian_version ]]; then
+        # Debian/Ubuntu-based systems
+        wget -qO - https://dl.xanmod.org/archive.key | sudo gpg --dearmor -o /etc/apt/keyrings/xanmod-archive-keyring.gpg
+        echo 'deb [signed-by=/etc/apt/keyrings/xanmod-archive-keyring.gpg] http://deb.xanmod.org releases main' | sudo tee /etc/apt/sources.list.d/xanmod-release.list
+        sudo apt update && sudo apt install -y linux-xanmod-x64v3
+        print_green "XanMod Kernel installed successfully. Please reboot your system."
+    else
+        print_red "XanMod Kernel installation is only supported on Debian/Ubuntu."
+    fi
+}
+
+####################################
 # Interactive Optimization Steps
 ####################################
 
@@ -142,7 +166,18 @@ else
     print_yellow "Skipping system update."
 fi
 
-# Step 2: Install Essential Tools & Networking Utilities
+# Step 2: Install XanMod Kernel (Debian/Ubuntu only)
+if [[ "$OS" == "debian" ]]; then
+    prompt_question "Install XanMod Kernel for better performance? [y/N]: "
+    read -r xanmod_choice
+    if [[ "$xanmod_choice" =~ ^[Yy]$ ]]; then
+        install_xanmod_kernel
+    else
+        print_yellow "Skipping XanMod Kernel installation."
+    fi
+fi
+
+# Step 3: Install Essential Tools & Networking Utilities
 prompt_question "Install essential tools and networking utilities? [y/N]: "
 read -r tools_choice
 if [[ "$tools_choice" =~ ^[Yy]$ ]]; then
@@ -157,7 +192,7 @@ else
     print_yellow "Skipping tool installation."
 fi
 
-# UFW Optimizations Function
+# Step 4: Configure UFW (Firewall) with Optimizations
 optimize_ufw() {
     print_yellow "Applying UFW optimizations..."
     # Open common ports (FTP, SSH, HTTP, HTTPS)
@@ -171,7 +206,6 @@ optimize_ufw() {
     print_green "UFW firewall optimized."
 }
 
-# Step 3: Configure UFW (Firewall) with Optimizations
 prompt_question "Configure UFW firewall with optimizations? [y/N]: "
 read -r ufw_choice
 if [[ "$ufw_choice" =~ ^[Yy]$ ]]; then
@@ -181,7 +215,7 @@ else
     print_yellow "Skipping UFW configuration."
 fi
 
-# Step 4: Configure Fail2Ban
+# Step 5: Configure Fail2Ban
 prompt_question "Configure Fail2Ban for intrusion prevention? [y/N]: "
 read -r fail2ban_choice
 if [[ "$fail2ban_choice" =~ ^[Yy]$ ]]; then
@@ -192,7 +226,7 @@ else
     print_yellow "Skipping Fail2Ban configuration."
 fi
 
-# Step 5: Configure NTP (Time Synchronization)
+# Step 6: Configure NTP (Time Synchronization)
 prompt_question "Configure NTP for time synchronization? [y/N]: "
 read -r ntp_choice
 if [[ "$ntp_choice" =~ ^[Yy]$ ]]; then
@@ -203,7 +237,7 @@ else
     print_yellow "Skipping NTP configuration."
 fi
 
-# Step 6: Tune Kernel Parameters for Performance
+# Step 7: Tune Kernel Parameters for Performance
 tune_kernel() {
     print_yellow "Tuning kernel parameters..."
     cat <<'EOF' >> /etc/sysctl.conf
