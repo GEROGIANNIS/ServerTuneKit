@@ -183,9 +183,9 @@ read -r tools_choice
 if [[ "$tools_choice" =~ ^[Yy]$ ]]; then
     print_yellow "Installing essential tools..."
     if [[ "$OS" == "debian" ]]; then
-        apt install -y htop nload iotop iftop tmux curl wget git unzip ufw fail2ban sysstat ntp ntpdate net-tools iputils-ping traceroute
+        apt install -y htop nload iotop iftop tmux curl wget git unzip ufw fail2ban sysstat net-tools iputils-ping traceroute
     else
-        dnf install -y htop nload iotop iftop tmux curl wget git unzip ufw fail2ban sysstat ntp ntpdate net-tools iputils traceroute
+        dnf install -y htop nload iotop iftop tmux curl wget git unzip ufw fail2ban sysstat net-tools iputils traceroute
     fi
     print_green "Essential tools installed."
 else
@@ -195,11 +195,12 @@ fi
 # Step 4: Configure UFW (Firewall) with Optimizations
 optimize_ufw() {
     print_yellow "Applying UFW optimizations..."
-    # Open common ports (FTP, SSH, HTTP, HTTPS)
-    ufw allow 21 21/udp
-    ufw allow 22 22/udp
-    ufw allow 80 80/udp
-    ufw allow 443 443/udp
+    # Open common ports (SSH, HTTP, HTTPS)
+    ufw allow 21/tcp
+    ufw allow 21/udp
+    ufw allow 22/tcp
+    ufw allow 80/tcp
+    ufw allow 443/tcp
     # Adjust UFW to use the system sysctl configuration
     sed -i 's|/etc/ufw/sysctl.conf|/etc/sysctl.conf|Ig' /etc/default/ufw
     ufw reload
@@ -226,15 +227,15 @@ else
     print_yellow "Skipping Fail2Ban configuration."
 fi
 
-# Step 6: Configure NTP (Time Synchronization)
-prompt_question "Configure NTP for time synchronization? [y/N]: "
+# Step 6: Configure Time Synchronization
+prompt_question "Configure time synchronization? [y/N]: "
 read -r ntp_choice
 if [[ "$ntp_choice" =~ ^[Yy]$ ]]; then
-    systemctl enable ntp
-    systemctl start ntp
-    print_green "NTP service configured."
+    timedatectl set-ntp true
+    systemctl restart systemd-timesyncd
+    print_green "Time synchronization configured."
 else
-    print_yellow "Skipping NTP configuration."
+    print_yellow "Skipping time synchronization."
 fi
 
 # Step 7: Tune Kernel Parameters for Performance
@@ -259,7 +260,6 @@ net.ipv4.tcp_fastopen = 3
 # Optimize TCP timeouts and connection reuse
 net.ipv4.tcp_fin_timeout = 15
 net.ipv4.tcp_tw_reuse = 1
-net.ipv4.tcp_tw_recycle = 1
 # Optimize TIME_WAIT backlog and limits
 net.ipv4.tcp_max_tw_buckets = 1440000
 net.ipv4.ip_local_port_range = 2000 65000
