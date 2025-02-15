@@ -147,6 +147,20 @@ install_xanmod_kernel() {
     fi
 }
 
+
+####################################
+# Remove Ubuntu Server Ads (MOTD, Unattended Upgrades, Snap Messages)
+####################################
+remove_ubuntu_ads() {
+    print_yellow "Disabling Ubuntu ads and messages..."
+    chmod -x /etc/update-motd.d/*
+    sed -i 's/ENABLED=1/ENABLED=0/g' /etc/default/motd-news
+    systemctl disable --now motd-news.timer
+    systemctl disable --now unattended-upgrades.service
+    snap set system refresh.retain=2
+    print_green "Ubuntu server ads disabled."
+}
+
 ####################################
 # Interactive Optimization Steps
 ####################################
@@ -236,6 +250,17 @@ if [[ "$ntp_choice" =~ ^[Yy]$ ]]; then
     print_green "Time synchronization configured."
 else
     print_yellow "Skipping time synchronization."
+fi
+
+
+# Step 7: Remove MODT Ads Ubuntu Server
+
+prompt_question "Remove Ubuntu server ads and messages? [y/N]: "
+read -r ubuntu_ads_choice
+if [[ "$ubuntu_ads_choice" =~ ^[Yy]$ ]]; then
+    remove_ubuntu_ads
+else
+    print_yellow "Skipping Ubuntu ad removal."
 fi
 
 # Step 7: Tune Kernel Parameters for Performance
