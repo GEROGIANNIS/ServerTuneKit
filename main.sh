@@ -25,7 +25,7 @@ for func_file in functions/*.sh; do
     source "$func_file"
 done
 
-# OS Detection
+# Detect OS
 detect_os
 
 # Install Dependencies
