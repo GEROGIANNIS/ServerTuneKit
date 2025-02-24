@@ -58,6 +58,12 @@ if [[ "$tools_choice" =~ ^[Yy]$ ]]; then
     install_essential_tools
 fi
 
+prompt_question "Install Docker? [y/N]: "
+read -r docker_choice
+if [[ "$docker_choice" =~ ^[Yy]$ ]]; then
+    install_docker
+fi
+
 prompt_question "Install and configure UFW firewall? [y/N]: "
 read -r ufw_choice
 if [[ "$ufw_choice" =~ ^[Yy]$ ]]; then
