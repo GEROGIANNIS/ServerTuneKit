@@ -40,12 +40,13 @@ display_menu() {
     echo "10) Install and Configure NTP"
     echo "11) Remove Ubuntu Server Ads"
     echo "12) Tune Kernel Parameters"
-    echo "13) Exit"
+    echo "13) Setup LVM on Selected Disks"
+    echo "14) Exit"
 }
 
 while true; do
     display_menu
-    read -rp "Enter your choice (1-13): " choice
+    read -rp "Enter your choice (1-14): " choice
 
     case $choice in
         1) install_dependencies ;;
@@ -60,9 +61,10 @@ while true; do
         10) install_and_configure_ntp ;;
         11) remove_ubuntu_ads ;;
         12) tune_kernel ;;
-        13) echo "Exiting..."; exit 0 ;;
-        *) echo "Invalid choice, please select a number between 1-13." ;;
+        13) setup_lvm ;;
+        14) echo "Exiting..."; exit 0 ;;
+        *) echo "Invalid choice, please select a number between 1-14." ;;
     esac
 
-echo "\nOperation completed. Returning to menu...\n"
+    echo -e "\nOperation completed. Returning to menu...\n"
 done
