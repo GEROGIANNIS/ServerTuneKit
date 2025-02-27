@@ -41,12 +41,13 @@ display_menu() {
     echo "11) Remove Ubuntu Server Ads"
     echo "12) Tune Kernel Parameters"
     echo "13) Setup LVM on Selected Disks"
-    echo "14) Exit"
+    echo "14) Generate PPK Key for remote SSH access"
+    echo "15) Exit"
 }
 
 while true; do
     display_menu
-    read -rp "Enter your choice (1-14): " choice
+    read -rp "Enter your choice (1-15): " choice
 
     case $choice in
         1) install_dependencies ;;
@@ -62,7 +63,8 @@ while true; do
         11) remove_ubuntu_ads ;;
         12) tune_kernel ;;
         13) setup_lvm ;;
-        14) echo "Exiting..."; exit 0 ;;
+        14) generate_ppk_key ;;
+        15) echo "Exiting..."; exit 0 ;;
         *) echo "Invalid choice, please select a number between 1-14." ;;
     esac
 
