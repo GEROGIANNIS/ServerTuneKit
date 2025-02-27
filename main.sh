@@ -1,6 +1,6 @@
 #!/bin/bash
 # =============================================================================
-# ServerTuneKit - Main Script
+# ServerTuneKit - Main Script with Menu
 # =============================================================================
 
 # Clear the screen
@@ -25,73 +25,46 @@ for func_file in functions/*.sh; do
     source "$func_file"
 done
 
-# Detect OS
-detect_os
+# Function to display menu
+display_menu() {
+    echo "Choose an option to run a specific function:" 
+    echo "1) Install Dependencies"
+    echo "2) Fix /etc/hosts File"
+    echo "3) Set Timezone"
+    echo "4) Update and Upgrade System"
+    echo "5) Install XanMod Kernel (Debian-based)"
+    echo "6) Install Essential Tools"
+    echo "7) Install Docker"
+    echo "8) Install and Configure UFW"
+    echo "9) Install and Configure Fail2Ban"
+    echo "10) Install and Configure NTP"
+    echo "11) Remove Ubuntu Server Ads"
+    echo "12) Tune Kernel Parameters"
+    echo "13) Setup LVM on Selected Disks"
+    echo "14) Exit"
+}
 
-# Install Dependencies
-install_dependencies
+while true; do
+    display_menu
+    read -rp "Enter your choice (1-14): " choice
 
-# Fix /etc/hosts File
-fix_hosts
+    case $choice in
+        1) install_dependencies ;;
+        2) fix_hosts ;;
+        3) set_timezone ;;
+        4) update_system ;;
+        5) [[ "$OS" == "debian" ]] && install_xanmod_kernel || echo "XanMod Kernel is only available for Debian-based systems." ;;
+        6) install_essential_tools ;;
+        7) install_docker ;;
+        8) install_and_configure_ufw ;;
+        9) install_and_configure_fail2ban ;;
+        10) install_and_configure_ntp ;;
+        11) remove_ubuntu_ads ;;
+        12) tune_kernel ;;
+        13) setup_lvm ;;
+        14) echo "Exiting..."; exit 0 ;;
+        *) echo "Invalid choice, please select a number between 1-14." ;;
+    esac
 
-# Set Timezone
-set_timezone
-
-# Interactive Optimization Steps
-prompt_question "Update and upgrade system packages? [y/N]: "
-read -r update_choice
-if [[ "$update_choice" =~ ^[Yy]$ ]]; then
-    update_system
-fi
-
-if [[ "$OS" == "debian" ]]; then
-    prompt_question "Install XanMod Kernel for better performance? [y/N]: "
-    read -r xanmod_choice
-    if [[ "$xanmod_choice" =~ ^[Yy]$ ]]; then
-        install_xanmod_kernel
-    fi
-fi
-
-prompt_question "Install essential tools and networking utilities? [y/N]: "
-read -r tools_choice
-if [[ "$tools_choice" =~ ^[Yy]$ ]]; then
-    install_essential_tools
-fi
-
-prompt_question "Install Docker? [y/N]: "
-read -r docker_choice
-if [[ "$docker_choice" =~ ^[Yy]$ ]]; then
-    install_docker
-fi
-
-prompt_question "Install and configure UFW firewall? [y/N]: "
-read -r ufw_choice
-if [[ "$ufw_choice" =~ ^[Yy]$ ]]; then
-    install_and_configure_ufw
-fi
-
-prompt_question "Install and configure Fail2Ban for intrusion prevention? [y/N]: "
-read -r fail2ban_choice
-if [[ "$fail2ban_choice" =~ ^[Yy]$ ]]; then
-    install_and_configure_fail2ban
-fi
-
-prompt_question "Install and configure NTP for time synchronization? [y/N]: "
-read -r ntp_choice
-if [[ "$ntp_choice" =~ ^[Yy]$ ]]; then
-    install_and_configure_ntp
-fi
-
-prompt_question "Remove Ubuntu server ads and messages? [y/N]: "
-read -r ubuntu_ads_choice
-if [[ "$ubuntu_ads_choice" =~ ^[Yy]$ ]]; then
-    remove_ubuntu_ads
-fi
-
-prompt_question "Tune kernel parameters for better performance? [y/N]: "
-read -r kernel_choice
-if [[ "$kernel_choice" =~ ^[Yy]$ ]]; then
-    tune_kernel
-fi
-
-print_green "All selected optimizations have been applied. Enjoy your optimized server!"
+    echo -e "\nOperation completed. Returning to menu...\n"
+done
