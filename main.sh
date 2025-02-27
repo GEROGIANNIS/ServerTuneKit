@@ -8,9 +8,13 @@ clear
 
 # Source utility functions
 source functions/utils.sh
+source functions/os_detection.sh
 
 # Check for root privileges
 check_if_running_as_root
+
+# Detect the OS
+detect_os
 
 # Intro Message
 print_green "================================================================="
